@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Dashboard | Expense Tracker</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f4f6fb;
+        }
+
+        .navbar {
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .card {
+            border-radius: 15px;
+        }
+
+        .total-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark px-4">
+    <a class="navbar-brand fw-bold" href="#">💰 Expense Tracker</a>
+
+    <div class="ms-auto">
+        <a th:href="@{/add}" class="btn btn-light me-2">+ Add Expense</a>
+        <a th:href="@{/logout}" class="btn btn-danger">Logout</a>
+    </div>
+</nav>
+
+<div class="container mt-5">
+
+    <!-- 🔥 Month Filter -->
+    <div class="card shadow-sm p-3 mb-4">
+        <form method="get" th:action="@{/expenses}" class="row g-3 align-items-center">
+
+            <div class="col-auto">
+                <label class="col-form-label fw-semibold">Select Month:</label>
+            </div>
+
+            <div class="col-auto">
+                <select name="month" class="form-select">
+                    <option value="">All Months</option>
+                    <option value="1" th:selected="${selectedMonth == 1}">January</option>
+                    <option value="2" th:selected="${selectedMonth == 2}">February</option>
+                    <option value="3" th:selected="${selectedMonth == 3}">March</option>
+                    <option value="4" th:selected="${selectedMonth == 4}">April</option>
+                    <option value="5" th:selected="${selectedMonth == 5}">May</option>
+                    <option value="6" th:selected="${selectedMonth == 6}">June</option>
+                    <option value="7" th:selected="${selectedMonth == 7}">July</option>
+                    <option value="8" th:selected="${selectedMonth == 8}">August</option>
+                    <option value="9" th:selected="${selectedMonth == 9}">September</option>
+                    <option value="10" th:selected="${selectedMonth == 10}">October</option>
+                    <option value="11" th:selected="${selectedMonth == 11}">November</option>
+                    <option value="12" th:selected="${selectedMonth == 12}">December</option>
+                </select>
+            </div>
+
+            <div class="col-auto">
+                <button type="submit" class="btn btn-primary">Filter</button>
+            </div>
+
+            <div class="col-auto">
+                <a th:href="@{/expenses}" class="btn btn-secondary">Reset</a>
+            </div>
+
+        </form>
+    </div>
+
+    <!-- Total Card -->
+    <div class="card total-card shadow-lg p-4 mb-4">
+        <h4>Total Expense</h4>
+        <h2 class="fw-bold">₹ <span th:text="${totalAmount}"></span></h2>
+    </div>
+
+    <!-- Charts -->
+    <div class="row mb-4">
+
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-lg p-4">
+                <h5 class="mb-3">Category Breakdown</h5>
+                <canvas id="categoryChart"></canvas>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-lg p-4">
+                <h5 class="mb-3">Monthly Overview</h5>
+                <canvas id="monthlyChart"></canvas>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Expense Table -->
+    <div class="card shadow-lg p-4">
+        <h4 class="mb-4">All Expenses</h4>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                <tr>
+                    <th>Title</th>
+                    <th>Amount</th>
+                    <th>Category</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr th:each="exp : ${expenses}">
+                    <td th:text="${exp.title}"></td>
+                    <td>₹ <span th:text="${exp.amount}"></span></td>
+                    <td th:text="${exp.category}"></td>
+                    <td th:text="${exp.date}"></td>
+                    <td>
+                        <a th:href="@{'/edit/' + ${exp.id}}"
+                           class="btn btn-sm btn-warning me-2">Edit</a>
+
+                        <a th:href="@{'/delete/' + ${exp.id}}"
+                           class="btn btn-sm btn-danger"
+                           onclick="return confirm('Are you sure?')">
+                            Delete
+                        </a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <div th:if="${#lists.isEmpty(expenses)}"
+                 class="text-center mt-4 text-muted">
+                No expenses added yet.
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Chart Script -->
+<script th:inline="javascript">
+
+    const categoryData = [[${categoryData}]];
+    const monthlyData = [[${monthlyData}]];
+
+    new Chart(document.getElementById('categoryChart'), {
+        type: 'pie',
+        data: {
+            labels: Object.keys(categoryData),
+            datasets: [{
+                data: Object.values(categoryData)
+            }]
+        }
+    });
+
+    new Chart(document.getElementById('monthlyChart'), {
+        type: 'bar',
+        data: {
+            labels: Object.keys(monthlyData),
+            datasets: [{
+                label: 'Monthly Expense',
+                data: Object.values(monthlyData)
+            }]
+        }
+    });
+
+</script>
+
+</body>
+</html>
