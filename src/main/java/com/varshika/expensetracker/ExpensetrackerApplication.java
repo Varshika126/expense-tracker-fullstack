@@ -7,12 +7,17 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import io.github.cdimascio.dotenv.Dotenv;
+
 
 @SpringBootApplication
 @EnableJpaRepositories(basePackages = "com.varshika.expensetracker.repository")
 public class ExpensetrackerApplication {
 
     public static void main(String[] args) {
+        
+		Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
+		dotenv.entries().forEach(e -> System.setProperty(e.getKey(), e.getValue()));
         SpringApplication.run(ExpensetrackerApplication.class, args);
     }
 
